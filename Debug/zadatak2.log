@@ -1,0 +1,4 @@
+﻿  zadatak2.c
+C:\Users\student\Documents\Visual Studio 2019\zadatak2\zadatak2\zadatak2.c(34,17): warning C4047: '=': 'Position' differs in levels of indirection from 'Position *'
+C:\Users\student\Documents\Visual Studio 2019\zadatak2\zadatak2\zadatak2.c(46,17): warning C4047: '=': 'Position' differs in levels of indirection from 'Position *'
+  zadatak2.vcxproj -> C:\Users\student\Documents\Visual Studio 2019\zadatak2\Debug\zadatak2.exe
