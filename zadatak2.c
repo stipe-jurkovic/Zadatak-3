@@ -72,7 +72,15 @@ int main()
     while (od!=0) {
 
         Menu();
-        scanf("%d", &od);
+        
+        p = 0;
+        p = scanf(" %d", &od);
+        od = 1;
+        if (p != 1) {
+        printf("\n\nIncorrect input.\n\n\n");
+        od = 0;
+        }
+        
 
         switch (od)
         {
@@ -142,7 +150,6 @@ int main()
             DelAll(headPoz);
             break;
         default:
-            printf("default");
             break;
         }
         memset(Osoba.name, 0, strlen(Osoba.name));
