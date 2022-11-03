@@ -7,6 +7,7 @@
 #define PROGRAM_FAILED 1
 #define MAX_NAME 500
 #define MAX_LASTNAME 500
+#define MAX_FILE_NAME 50
 
 typedef struct _Osoba {
 
@@ -42,14 +43,17 @@ int NewElAfter(Position P, Osoba OA, Osoba O);
 int NewElBefore(Position P, Osoba OB, Osoba O);
 int PrintList(Position P);
 int findLastname(Position P, char lastname[MAX_LASTNAME]);
-
+int PrintToFile(Position P, char nameOfFile[MAX_FILE_NAME]);
+int ReadFromFile(char nameOfFile[MAX_FILE_NAME]);
+int SortByLastname(Position P);
+int cmp(char str1[MAX_LASTNAME], char str2[MAX_LASTNAME]);
 
 int main()
 {
     Osoba Osoba, Osoba2;
     Position headPoz;
     int p, od;
-    
+   
     p = 0;
     od = 1;
 
@@ -120,13 +124,19 @@ int main()
             DelElByName(headPoz, Osoba);
             break;
         case 8:
-            //Ovdje ubaciti poziv na funkciju za sortiranje
+            SortByLastname(headPoz);
             break;
-        case 9:
-            //Ovdje ubaciti poziv na funkciju za upis u datoteku
+        case 9:;
+            printf("Unesite ime datoteke (pr. ime.txt):\n");
+            char fileName[MAX_FILE_NAME] = "";
+            scanf(" %s", fileName);
+            PrintToFile(headPoz, fileName);
             break;
-        case 10:
-            //Ovdje ubaciti poziv na funkciju za ispis iz datoteke ispisuje se na ekran te se pise u listu
+        case 10:;
+            printf("Unesite ime datoteke (pr. ime.txt):\n");
+            char nameOfFile[MAX_FILE_NAME] = "";
+            scanf(" %s", nameOfFile);
+            ReadFromFile(nameOfFile);
             break;
         case 11:
             DelAll(headPoz);
@@ -142,7 +152,7 @@ int main()
         memset(Osoba2.lastname, 0, strlen(Osoba2.lastname));
         Osoba2.yearOfBirth = 0;
     }
-    
+   
     DelAll(headPoz);
     free(headPoz);
     return PROGRAM_SUCCESS;
@@ -183,9 +193,9 @@ Position EndOfList(Position P) {
 Position PrevEl(Position P, Osoba O) {
 
    
-    while (P->Next!= NULL && P->Next->Osoba.yearOfBirth != O.yearOfBirth 
-        && strcmp(P->Next->Osoba.name, O.name)!=0 
-        && strcmp(P->Next->Osoba.lastname, O.lastname) != 0) 
+    while (P->Next!= NULL && P->Next->Osoba.yearOfBirth != O.yearOfBirth
+        && strcmp(P->Next->Osoba.name, O.name)!=0
+        && strcmp(P->Next->Osoba.lastname, O.lastname) != 0)
     {
         P = P->Next;
     }
@@ -202,7 +212,7 @@ int PrintEl(Position P) {
     return PROGRAM_SUCCESS;
 }
 int DelElByName(Position P, Osoba O) {
-    
+   
     Position temp = NULL;
 
     P = PrevEl(P,O);
@@ -311,4 +321,129 @@ int findLastname(Position P, char lastname[MAX_LASTNAME]) {
     printf("\nLastname not found!!\n\n");
 
     return PROGRAM_FAILED;
+}
+
+int PrintToFile(Position P, char nameOfFile[MAX_FILE_NAME]) {
+    FILE *file = NULL;
+    char fileName[MAX_FILE_NAME] = "";
+   
+    strcpy(fileName, nameOfFile);
+    file = fopen(fileName, "w");
+   
+    if (file == NULL)
+    {
+        printf("\n\nNedovoljno prostora.\n\n");
+        return PROGRAM_FAILED;
+    }
+   
+    P = P->Next;
+    if (P == NULL)
+    {
+        printf("\n\nLista je prazna!!\n\n\n");
+        return PROGRAM_FAILED;
+    }
+    while (P != NULL) {
+
+        fprintf(file, "\nName:       %s\n", P->Osoba.name);
+        fprintf(file, "Lastname:   %s\n", P->Osoba.lastname);
+        fprintf(file, "Birthyear:  %i\n", P->Osoba.yearOfBirth);
+        P = P->Next;
+        fprintf(file, "\n");
+    }
+   
+    printf("\n\nSuccessfully added the list to list.txt\n\n");
+    fclose(file);
+   
+    return PROGRAM_SUCCESS;
+}
+
+int ReadFromFile(char nameOfFile[MAX_FILE_NAME])
+{
+    char fileName[MAX_FILE_NAME] = "";
+    FILE *file = NULL;
+    char c = "\0";
+    strcpy(fileName, nameOfFile);
+    strcpy(fileName, nameOfFile);
+    file = fopen(fileName, "r");
+   
+    if (file == NULL)
+    {
+        printf("\n\nNemoguce otvoriti datoteku.\n\n");
+        return PROGRAM_FAILED;
+    }
+   
+    c = fgetc(file);
+    while (c != EOF)
+    {
+        printf ("%c", c);
+        c = fgetc(file);
+    }
+   
+    printf("\n\nKraj liste.\n\n");
+    fclose(file);
+    return PROGRAM_SUCCESS;
+}
+
+int cmp(char str1[MAX_LASTNAME], char str2[MAX_LASTNAME])
+{
+    if (strcmp(str1, str2) == 0)
+        return 1; // jednaki stringovi
+        
+    return 0;
+}
+
+int SortByLastname(Position P)
+{
+    Position curr = NULL;
+    Position prev = NULL;
+    Position temp = NULL;
+    Position end = NULL;
+   
+    while (P-> Next != end)
+    {
+        prev = P;
+        curr = P -> Next;
+
+        while (curr -> Next != end)
+        {
+            if (strcmp(curr -> Osoba.lastname, curr -> Next -> Osoba.lastname) > 0)
+            {
+                temp = curr -> Next;
+                prev -> Next = temp;
+                curr -> Next = temp -> Next;
+                temp -> Next = curr;
+                curr = temp;
+            }
+            
+            else if (cmp(curr -> Osoba.lastname, curr -> Next -> Osoba.lastname)
+                    && strcmp(curr -> Osoba.name, curr -> Next -> Osoba.name) > 0)
+            {
+                temp = curr -> Next;
+                prev -> Next = temp;
+                curr -> Next = temp -> Next;
+                temp -> Next = curr;
+                curr = temp;
+            }
+            
+            else if (cmp(curr -> Osoba.lastname, curr -> Next -> Osoba.lastname)
+                    && strcmp(curr -> Osoba.name, curr -> Next -> Osoba.name) == 0
+                    && curr -> Osoba.yearOfBirth > curr -> Next -> Osoba.yearOfBirth)
+            {
+                temp = curr -> Next;
+                prev -> Next = temp;
+                curr -> Next = temp -> Next;
+                temp -> Next = curr;
+                curr = temp;
+            }
+
+            prev = curr;
+            curr = curr -> Next;
+        }
+
+        end = curr;
+    }
+    
+    printf("\n\nList sorted.\n\n");
+
+    return PROGRAM_SUCCESS;
 }
